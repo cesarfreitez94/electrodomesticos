@@ -7,5 +7,316 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Todas las entidades del SDD § 3
-// (se implementan completas en TASK-02)
+// =============================================
+// ENUMS
+// =============================================
+
+enum Rol {
+  admin
+  tecnico
+}
+
+enum EstadoCita {
+  pendiente
+  confirmado
+  en_curso
+  completado
+  cancelado
+  emergencia
+}
+
+enum EstadoNotificacion {
+  enviado
+  fallido
+}
+
+enum TipoAtributo {
+  texto
+  numero
+  seleccion
+}
+
+// =============================================
+// USUARIOS (users)
+// =============================================
+
+model User {
+  id           String   @id @default(uuid())
+  nombre       String   @db.VarChar(100)
+  email        String   @unique @db.VarChar(255)
+  passwordHash String   @map("password_hash")
+  rol          Rol      @default(tecnico)
+  activo       Boolean  @default(true)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  tecnicoCiudades TecnicoCiudad[] @relation("TecnicoEnCiudad")
+  citasTecnico    Cita[]          @relation("TecnicoAsignado")
+
+  @@map("users")
+}
+
+// =============================================
+// REGIONES
+// =============================================
+
+model Region {
+  id        String   @id @default(uuid())
+  nombre    String   @db.VarChar(100)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  ciudades Ciudad[]
+
+  @@map("regiones")
+}
+
+// =============================================
+// CIUDADES
+// =============================================
+
+model Ciudad {
+  id         String   @id @default(uuid())
+  nombre     String   @db.VarChar(100)
+  regionId   String   @map("region_id")
+  habilitada Boolean  @default(true)
+  suspendida Boolean  @default(false)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  region         Region          @relation(fields: [regionId], references: [id])
+  tecnicosCiudad TecnicoCiudad[]
+  citas          Cita[]
+
+  @@map("ciudades")
+}
+
+// =============================================
+// TÉCNICO × CIUDAD (relación N:N)
+// =============================================
+
+model TecnicoCiudad {
+  tecnicoId String @map("tecnico_id")
+  ciudadId  String @map("ciudad_id")
+
+  tecnico User   @relation("TecnicoEnCiudad", fields: [tecnicoId], references: [id])
+  ciudad  Ciudad @relation(fields: [ciudadId], references: [id])
+
+  @@id([tecnicoId, ciudadId])
+  @@map("tecnicos_ciudades")
+}
+
+// =============================================
+// CATEGORÍAS
+// =============================================
+
+model Categoria {
+  id        String   @id @default(uuid())
+  nombre    String   @db.VarChar(100)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  servicios Servicio[]
+  repuestos Repuesto[]
+
+  @@map("categorias")
+}
+
+// =============================================
+// SERVICIOS
+// =============================================
+
+model Servicio {
+  id                  String   @id @default(uuid())
+  nombre              String   @db.VarChar(150)
+  categoriaId         String   @map("categoria_id")
+  descripcion         String   @db.Text
+  precioMantenimiento Decimal  @map("precio_mantenimiento") @db.Decimal(10, 2)
+  activo              Boolean  @default(true)
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  categoria    Categoria     @relation(fields: [categoriaId], references: [id])
+  subProductos SubProducto[]
+  citas        Cita[]
+
+  @@map("servicios")
+}
+
+// =============================================
+// SUB-PRODUCTOS
+// =============================================
+
+model SubProducto {
+  id         String   @id @default(uuid())
+  servicioId String   @map("servicio_id")
+  nombre     String   @db.VarChar(150)
+  precio     Decimal  @db.Decimal(10, 2)
+  activo     Boolean  @default(true)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  servicio  Servicio              @relation(fields: [servicioId], references: [id])
+  atributos AtributoSubProducto[]
+
+  @@map("sub_productos")
+}
+
+// =============================================
+// ATRIBUTOS DE SUB-PRODUCTO
+// =============================================
+
+model AtributoSubProducto {
+  id            String       @id @default(uuid())
+  subProductoId String       @map("sub_producto_id")
+  nombre        String       @db.VarChar(100)
+  tipo          TipoAtributo
+  opciones      Json? // array de strings si tipo = seleccion
+  createdAt     DateTime     @default(now()) @map("created_at")
+
+  subProducto SubProducto @relation(fields: [subProductoId], references: [id])
+
+  @@map("atributos_sub_producto")
+}
+
+// =============================================
+// REPUESTOS
+// =============================================
+
+model Repuesto {
+  id          String   @id @default(uuid())
+  nombre      String   @db.VarChar(150)
+  descripcion String?  @db.Text
+  categoriaId String   @map("categoria_id")
+  disponible  Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  categoria      Categoria      @relation(fields: [categoriaId], references: [id])
+  citasRepuestos CitaRepuesto[]
+
+  @@map("repuestos")
+}
+
+// =============================================
+// DISPONIBILIDAD CALENDARIO
+// =============================================
+
+model DisponibilidadCalendario {
+  id         String   @id @default(uuid())
+  diaSemana  Int // 0 = Lunes, 6 = Domingo
+  horaInicio String   @db.VarChar(5) // "09:00"
+  horaFin    String   @db.VarChar(5) // "18:00"
+  activo     Boolean  @default(true)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@map("disponibilidad_calendario")
+}
+
+// =============================================
+// CITAS
+// =============================================
+
+model Cita {
+  id                String     @id @default(uuid())
+  servicioId        String     @map("servicio_id")
+  tecnicoId         String?    @map("tecnico_id")
+  ciudadId          String     @map("ciudad_id")
+  clienteNombre     String     @map("cliente_nombre") @db.VarChar(100)
+  clienteEmail      String     @map("cliente_email") @db.VarChar(255)
+  clienteTelefono   String     @map("cliente_telefono") @db.VarChar(20)
+  clienteDireccion  String     @map("cliente_direccion") @db.Text
+  fechaHora         DateTime   @map("fecha_hora")
+  estado            EstadoCita @default(pendiente)
+  confirmadoTecnico Boolean    @default(false) @map("confirmado_tecnico")
+  notasAdmin        String?    @map("notas_admin") @db.Text
+  createdAt         DateTime   @default(now()) @map("created_at")
+  updatedAt         DateTime   @updatedAt @map("updated_at")
+
+  servicio       Servicio                @relation(fields: [servicioId], references: [id])
+  tecnico        User?                   @relation("TecnicoAsignado", fields: [tecnicoId], references: [id])
+  ciudad         Ciudad                  @relation(fields: [ciudadId], references: [id])
+  repuestos      CitaRepuesto[]
+  notificaciones HistorialNotificacion[]
+
+  @@index([fechaHora])
+  @@index([estado])
+  @@index([tecnicoId])
+  @@map("citas")
+}
+
+// =============================================
+// CITA × REPUESTO (relación N:N)
+// =============================================
+
+model CitaRepuesto {
+  citaId     String @map("cita_id")
+  repuestoId String @map("repuesto_id")
+
+  cita     Cita     @relation(fields: [citaId], references: [id])
+  repuesto Repuesto @relation(fields: [repuestoId], references: [id])
+
+  @@id([citaId, repuestoId])
+  @@map("citas_repuestos")
+}
+
+// =============================================
+// CONFIGURACIÓN DE RECORDATORIOS
+// =============================================
+
+model ConfiguracionRecordatorio {
+  id         String   @id @default(uuid())
+  horasAntes Int      @map("horas_antes")
+  activo     Boolean  @default(true)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("configuracion_recordatorios")
+}
+
+// =============================================
+// HISTORIAL DE NOTIFICACIONES
+// =============================================
+
+model HistorialNotificacion {
+  id           String             @id @default(uuid())
+  citaId       String?            @map("cita_id")
+  tipo         String             @db.VarChar(50) // confirmacion_cliente, notif_tecnico, recordatorio, cancelacion, emergencia_admin
+  destinatario String             @db.VarChar(255)
+  estado       EstadoNotificacion
+  errorDetalle String?            @map("error_detalle") @db.Text
+  enviadoAt    DateTime           @default(now()) @map("enviado_at")
+
+  cita Cita? @relation(fields: [citaId], references: [id])
+
+  @@index([estado])
+  @@index([citaId])
+  @@map("historial_notificaciones")
+}
+
+// =============================================
+// CONFIGURACIÓN DEL SISTEMA (clave-valor)
+// =============================================
+
+model ConfiguracionSistema {
+  id          String   @id @default(uuid())
+  clave       String   @unique @db.VarChar(100)
+  valor       String   @db.Text
+  descripcion String?  @db.Text
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("configuracion_sistema")
+}
+
+// =============================================
+// REDES SOCIALES
+// =============================================
+
+model RedSocial {
+  id        String   @id @default(uuid())
+  nombre    String   @db.VarChar(50)
+  url       String   @db.Text
+  icono     String?  @db.VarChar(50)
+  orden     Int      @default(0)
+  activo    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("redes_sociales")
+}
