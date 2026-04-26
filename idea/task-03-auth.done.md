@@ -14,7 +14,7 @@
 | Estimación | M (4–8 horas) |
 | Prioridad | Alta — bloquea todo el backoffice y portal técnico |
 | Tipo | Backend |
-| Estado | Pendiente |
+| Estado | ~~Pendiente~~ → **COMPLETA** |
 | Asignado a | [SIN ASIGNAR] |
 
 ---
@@ -353,16 +353,16 @@ npm run build
 
 > La task está completa cuando:
 
-- [ ] `lib/auth.ts` exporta `auth`, `signIn`, `signOut`, `handlers`
-- [ ] `app/api/auth/[...nextauth]/route.ts` exporta GET y POST
-- [ ] La página `/login` existe y renderiza el formulario
-- [ ] Login con credenciales válidas redirige al callbackUrl (admin → `/admin/dashboard`, técnico → `/tecnico/citas`)
-- [ ] Login con credenciales inválidas muestra "Credenciales incorrectas" (sin revelar si el email existe)
-- [ ] Tras 5 intentos fallidos, el sistema muestra "Tu cuenta está bloqueada. Intenta en X minutos"
-- [ ] El JWT contiene `id`, `rol` y `nombre` del usuario
-- [ ] La sesión en el cliente tiene acceso a `session.user.id`, `session.user.rol`, `session.user.nombre`
-- [ ] `npm run build` pasa sin errores
-- [ ] No hay contraseñas en texto plano en la base de datos — todas son hash bcrypt
+- [x] `lib/auth.ts` exporta `auth`, `signIn`, `signOut`, `handlers`
+- [x] `app/api/auth/[...nextauth]/route.ts` exporta GET y POST
+- [x] La página `/login` existe y renderiza el formulario
+- [x] Login con credenciales válidas redirige al callbackUrl (admin → `/admin/dashboard`, técnico → `/tecnico/citas`)
+- [x] Login con credenciales inválidas muestra "Credenciales incorrectas" (sin revelar si el email existe)
+- [x] Tras 5 intentos fallidos, el sistema muestra "Tu cuenta está bloqueada. Intenta en X minutos"
+- [x] El JWT contiene `id`, `rol` y `nombre` del usuario
+- [x] La sesión en el cliente tiene acceso a `session.user.id`, `session.user.rol`, `session.user.nombre`
+- [x] `npm run build` pasa sin errores
+- [x] No hay contraseñas en texto plano en la base de datos — todas son hash bcrypt
 
 ---
 
@@ -388,12 +388,12 @@ npm run build
 
 ## Checklist de cierre
 
-- [ ] Login con usuario admin redirecciona a `/admin/dashboard`
-- [ ] Login con usuario técnico redirecciona a `/tecnico/citas`
-- [ ] Credenciales inválidas muestran error genérico
-- [ ] 5 intentos fallidos bloquean 15 minutos
-- [ ] `npm run build` exitoso
-- [ ] Tipo `Session` incluye `user.id`, `user.rol`, `user.nombre`
+- [x] Login con usuario admin redirecciona a `/admin/dashboard`
+- [x] Login con usuario técnico redirecciona a `/tecnico/citas`
+- [x] Credenciales inválidas muestran error genérico
+- [x] 5 intentos fallidos bloquean 15 minutos
+- [x] `npm run build` exitoso
+- [x] Tipo `Session` incluye `user.id`, `user.rol`, `user.nombre`
 
 ---
 
