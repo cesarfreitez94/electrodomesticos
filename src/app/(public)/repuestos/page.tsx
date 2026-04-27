@@ -1,3 +1,10 @@
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Repuestos',
+  description: 'Catálogo de repuestos originales para electrodomésticos.',
+}
+
 type Repuesto = {
   id: string
   nombre: string

@@ -1,4 +1,10 @@
+import type { Metadata } from 'next'
 import { ServiceCard } from '@/components/public/ServiceCard'
+
+export const metadata: Metadata = {
+  title: 'Servicios',
+  description: 'Catálogo completo de servicios de mantenimiento de electrodomésticos.',
+}
 
 type Servicio = {
   id: string

@@ -1,5 +1,11 @@
+import type { Metadata } from 'next'
 import { ServiceCard } from '@/components/public/ServiceCard'
 import { ReelsYouTube } from '@/components/public/ReelsYouTube'
+
+export const metadata: Metadata = {
+  title: 'Servicio Técnico de Electrodomésticos',
+  description: 'Agenda tu próxima visita de mantenimiento de electrodomésticos. Técnicos certificados en tu ciudad.',
+}
 
 async function getServicios() {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
