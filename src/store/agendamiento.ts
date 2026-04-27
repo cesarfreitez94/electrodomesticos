@@ -15,9 +15,9 @@ interface AgendamientoState {
   setCliente: (cliente: AgendamientoState['cliente']) => void
   direccion: string
   setDireccion: (d: string) => void
-  ciudadId: string | null
+  ciudadId: string
   setCiudadId: (id: string) => void
-  fechaHora: string | null
+  fechaHora: string
   setFechaHora: (fh: string) => void
   reset: () => void
 }
@@ -28,8 +28,8 @@ const initial = {
   repuestoIds: [],
   cliente: { nombre: '', email: '', telefono: '' },
   direccion: '',
-  ciudadId: null,
-  fechaHora: null,
+  ciudadId: '',
+  fechaHora: '',
 }
 
 export const useAgendamientoStore = create<AgendamientoState>((set) => ({
