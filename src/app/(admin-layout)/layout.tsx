@@ -20,9 +20,10 @@ export default async function AdminLayout({
           <SidebarLink href="/admin/dashboard" label="Dashboard" />
           <SidebarLink href="/admin/citas" label="Citas" />
           <SidebarLink href="/admin/tecnicos" label="Técnicos" />
-          <SidebarLink href="/admin/servicios" label="Servicios" />
-          <SidebarLink href="/admin/repuestos" label="Repuestos" />
+          <SidebarLink href="/admin/admin-servicios" label="Servicios" />
+          <SidebarLink href="/admin/admin-repuestos" label="Repuestos" />
           <SidebarLink href="/admin/geografico" label="Regiones / Ciudades" />
+          <SidebarLink href="/admin/categorias" label="Categorías" />
           <SidebarLink href="/admin/calendario" label="Calendario" />
           <SidebarLink href="/admin/notificaciones" label="Notificaciones" />
           <SidebarLink href="/admin/configuracion" label="Configuración" />
@@ -67,9 +68,10 @@ function MobileMenu() {
         <a href="/admin/dashboard" className="block">Dashboard</a>
         <a href="/admin/citas" className="block">Citas</a>
         <a href="/admin/tecnicos" className="block">Técnicos</a>
-        <a href="/admin/servicios" className="block">Servicios</a>
-        <a href="/admin/repuestos" className="block">Repuestos</a>
+        <a href="/admin/admin-servicios" className="block">Servicios</a>
+        <a href="/admin/admin-repuestos" className="block">Repuestos</a>
         <a href="/admin/geografico" className="block">Regiones / Ciudades</a>
+        <a href="/admin/categorias" className="block">Categorías</a>
         <a href="/admin/calendario" className="block">Calendario</a>
         <a href="/admin/notificaciones" className="block">Notificaciones</a>
         <a href="/admin/configuracion" className="block">Configuración</a>
