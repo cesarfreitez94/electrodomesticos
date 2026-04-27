@@ -1,5 +1,21 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    serverComponentsExternalPackages: ['node-cron'],
+  },
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals = [...(config.externals || []), {
+        'node-cron': 'node-cron',
+      }]
+    }
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      'node:crypto': false,
+      'child_process': false,
+    }
+    return config
+  },
   async headers() {
     return [
       {
