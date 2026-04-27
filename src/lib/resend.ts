@@ -1,15 +1,14 @@
 import { Resend } from 'resend'
+import { registrarNotificacionEnviada, registrarNotificacionFallida } from '@/lib/notificacion-helper'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
-
-export const resendClient = resend
 
 export async function enviarEmail(
   to: string,
   subject: string,
   html: string,
-  _tipo: string,
-  _citaId?: string
+  tipo: string,
+  citaId?: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const result = await resend.emails.send({
@@ -20,12 +19,15 @@ export async function enviarEmail(
     })
 
     if (result.error) {
+      await registrarNotificacionFallida(tipo, to, citaId, result.error.message)
       return { success: false, error: result.error.message }
     }
 
+    await registrarNotificacionEnviada(tipo, to, citaId)
     return { success: true }
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Unknown error'
+    const message = err instanceof Error ? err.message : String(err)
+    await registrarNotificacionFallida(tipo, to, citaId, message)
     return { success: false, error: message }
   }
 }
